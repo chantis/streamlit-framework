@@ -6,3 +6,4 @@ altair
 bokeh
 requests
 yfinance
+calendar
