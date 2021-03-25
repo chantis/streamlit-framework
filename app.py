@@ -6,16 +6,13 @@ import calendar
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+from urllib.request import urlopen, Request
+from bs4 import BeautifulSoup
+
 st.title("AC TDI 12-day Program Milestone")
 
 # Get the stock ticker from the user 
-
 ticker = st.sidebar.text_input("Enter ticker (e.g., AAPL)","A")
-
-# Create a drop down menu for stock stickers
-# This also will define the value of ticker in subsequent code
-#ticker = st.sidebar.selectbox('Choose a S&P 500 Stock', symbols)
-
 
 # Create a pull down menu for the years
 years = ['2021', '2020', '2019', '2018', '2017', 
@@ -72,3 +69,38 @@ fig.update_layout(
         'yanchor': 'top'})
           
 st.plotly_chart(fig, use_container_width=True)
+
+# Get finviz news for this ticker
+finwiz_url = 'https://finviz.com/quote.ashx?t='
+url = finwiz_url + ticker
+st.write(url)
+
+req = Request(url=url,headers={'user-agent': 'my-app/0.0.1'}) 
+response = urlopen(req)  
+
+# Read the contents of the file into 'html'
+html = BeautifulSoup(response)
+
+# Find 'news-table' in the Soup and load it into 'news_table'
+news_table = html.find(id='news-table')
+hlinks = []
+for i,link in enumerate(news_table.find_all('a')):
+#    print(link.get('href'))
+    hlinks.append(link.get('href'))
+    if i == 11:
+        break
+# Get all the table rows tagged in HTML with <tr> into 'amzn_tr'
+table_tr = news_table.findAll('tr')
+for i, table_row in enumerate(table_tr):
+    # Read the text of the element 'a' into 'link_text'
+    a_text = table_row.a.text
+    # Read the text of the element 'td' into 'data_text'
+    td_text = table_row.td.text
+    # Print the contents of 'link_text' and 'data_text' 
+#    print(a_hlinks)
+    st.write(hlinks[i])
+    st.write(a_text)
+    st.write(td_text)
+    # Exit after printing 10 rows of data
+    if i == 11:
+        break
