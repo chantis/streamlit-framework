@@ -6,5 +6,5 @@ altair
 bokeh
 requests
 yfinance
-urllib
+urllib.request
 bs4
